@@ -3,7 +3,8 @@ import update from 'immutability-helper';
 
 import withAuthorization from './withAuthorization';
 import AuthUserContext from './AuthUserContext';
-import { db } from '../firebase';
+import DirectoryListingForm from './DirectoryListingForm';
+import { db, storage } from '../firebase';
 
 const byPropKey = (propertyName, value) => () => ({
   [propertyName]: value,
@@ -37,15 +38,6 @@ class DirectoryForm extends Component {
           () => ({ directory: snapshot.val() })));
   }
 
-  byListing = (index, propertyName, value) =>
-    update(this.state, {
-      directory: {
-        listings: {
-          [index]: {$merge: {[propertyName]: value}}
-        }
-      }
-    });
-
   onSubmit = (event) => {
     const {
       directory,
@@ -56,13 +48,8 @@ class DirectoryForm extends Component {
     } = this.props;
 
     db.doCreateOrEditDirectory(uid, directory)
-      .then(() => {
-        // TODO
-        console.log('updated');
-      })
-      .catch(error => {
-        this.setState(byPropKey('error', error));
-      });
+      .then(() => console.log('updated'))
+      .catch(error => this.handleError(error));
 
     event.preventDefault();
   };
@@ -87,6 +74,7 @@ class DirectoryForm extends Component {
       });
   };
 
+  // move to own component
   setBuildingName = (value) => {
     const {
       directory,
@@ -101,17 +89,49 @@ class DirectoryForm extends Component {
         this.state, {
           directory: {$set: {
             buildingName: '', 
-            listings: [{name: '', location: ''}]
+            listings: [{name: '', location: '', image: null}]
           }}
         });
   };
 
-  removeListing = (index) =>
-    update(this.state, {
+  // move to own component
+  uploadBuildingImage = (files) => {
+    const {
+      uid,
+    } = this.props;
+
+    const file = files[0];
+
+    if (!file) {
+      return;
+    }
+
+    storage.doCreateImage(uid, file)
+      .then(res => this.setState(update(this.state, {
+        directory: {$merge: {buildingImage: res.downloadURL}}
+      })))
+      .catch(error => this.handleError(error));
+  };
+
+  handleListingInfoChange = (index, propertyName, value) => 
+    this.setState(update(this.state, {
+      directory: {
+        listings: {
+          [index]: {$merge: {[propertyName]: value}}
+        }
+      }
+    }));
+
+  handleListingRemoval = (index) => 
+    this.setState(update(this.state, {
       directory: {
         listings: {$splice: [[index, 1]]}
       }
-    });
+    }));
+
+  handleError = (error) => {
+    this.setState(byPropKey('error', error));
+  };
 
   render() {
     const {
@@ -119,44 +139,35 @@ class DirectoryForm extends Component {
       error,
     } = this.state;
 
-    const listings = directory && directory.listings ? directory.listings.map((n, index) => 
-      <div key={index}>
-        <input
-          value={n.name}
-          onChange={event => 
-            this.setState(this.byListing(index, 'name', event.target.value))}
-          type="text"
-          placeholder="Listing Name" 
+    const listings = directory && directory.listings 
+      ? directory.listings.map((n, index) => 
+        <DirectoryListingForm 
+          listing={n}
+          key={index}
+          index={index}
+          onChangeInfo={this.handleListingInfoChange}
+          onRemoveListing={this.handleListingRemoval}
+          onError={this.handleError}
         />
-
-        <input
-          value={n.location}
-          onChange={event => 
-            this.setState(this.byListing(index, 'location', event.target.value))}
-          type="text"
-          placeholder="Listing Location" 
-        />
-
-        <button 
-          type="button" 
-          onClick={() => 
-            this.setState(this.removeListing(index))}
-        >
-          Remove Listing
-        </button>
-
-      </div>
-    ) : [];
+      ) 
+      : [];
 
     return (
       <div>
         <form onSubmit={this.onSubmit}>
+          {/* move these two inputs to own component */}
           <input
             type="text"
             value={directory ? directory.buildingName : ''}
-            onChange={event => 
-              this.setState(this.setBuildingName(event.target.value))}
+            onChange={e => 
+              this.setState(this.setBuildingName(e.target.value))}
             placeholder="Building Name"
+          />
+          <input 
+            onChange={e =>
+              this.uploadBuildingImage(e.target.files)}
+            type="file"
+            placeholder="Building Logo"
           />
 
           {listings}

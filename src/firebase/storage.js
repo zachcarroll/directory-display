@@ -1,5 +1,4 @@
 import { storage } from './firebase';
 
-export const doCreateImage = (id) =>
-  // storage.ref(`users/${id}`);
-
+export const doCreateImage = (file) =>
+  storage.ref(`images`).put(file);
