@@ -1,4 +1,5 @@
 import { storage } from './firebase';
 
-export const doCreateImage = (file) =>
-  storage.ref(`images`).put(file);
+// add a file to /images directory in storage
+export const doCreateImage = (file, name) =>
+  storage.ref(`images/${name}`).put(file);
