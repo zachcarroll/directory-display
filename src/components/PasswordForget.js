@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import Button from 'material-ui/Button';
+import Grid from 'material-ui/Grid';
+import TextField from 'material-ui/TextField';
+import Card, { CardContent, CardHeader, CardActions } from 'material-ui/Card';
 
 import { auth } from '../firebase';
 
 const PasswordForgetPage = () =>
   <div>
-    <h1>PasswordForget</h1>
     <PasswordForgetForm />
   </div>
 
@@ -48,19 +51,37 @@ class PasswordForgetForm extends Component {
     const isInvalid = email === '';
 
     return (
-      <form onSubmit={this.onSubmit}>
-        <input
-          value={this.state.email}
-          onChange={event => this.setState(byPropKey('email', event.target.value))}
-          type="text"
-          placeholder="Email Address"
-        />
-        <button disabled={isInvalid} type="submit">
-          Reset My Password
-        </button>
+      <Grid justify="center" container spacing={0}>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardHeader title="Forgot Password"></CardHeader>
+            <CardContent>
+              <Grid container spacing={16}>
+                
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    value={this.state.email}
+                    onChange={event => this.setState(byPropKey('email', event.target.value))}
+                    label="Email Address"
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
+            <CardActions>
+              <Button 
+                color="primary" 
+                variant="raised" 
+                onClick={this.onSubmit} 
+                disabled={isInvalid}>
+                Reset My Password
+              </Button>
 
-        { error && <p>{error.message}</p> }
-      </form>
+              { error && <p>{error.message}</p> }
+            </CardActions>
+          </Card>
+        </Grid>
+      </Grid>
     );
   }
 }

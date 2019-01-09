@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import CssBaseline from 'material-ui/CssBaseline';
 
 import Navigation from './Navigation';
@@ -18,10 +18,10 @@ const App = () =>
     <CssBaseline />
       <Router>
         <div>
-        
-          <Navigation />
 
-          <hr/>
+          <Switch>
+            <Route component={() => <Navigation />} />
+          </Switch>
 
           <Route exact path={routes.DIRECTORY_FORM} component={() => <DirectoryFormPage />} />
           <Route exact path={routes.LANDING} component={() => <LandingPage />} />
@@ -32,6 +32,5 @@ const App = () =>
         </div>
       </Router>
   </React.Fragment>
-
 
 export default withAuthentication(App);

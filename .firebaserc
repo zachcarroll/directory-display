@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "dev-directory-display",
+    "prod": "directory-display"
+  }
+}

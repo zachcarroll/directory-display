@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import Button from 'material-ui/Button';
+import Grid from 'material-ui/Grid';
+import TextField from 'material-ui/TextField';
+import Card, { CardContent, CardHeader, CardActions } from 'material-ui/Card';
 
 import { SignUpLink } from './SignUp';
 import { auth } from '../firebase';
@@ -8,10 +12,13 @@ import { PasswordForgetLink } from './PasswordForget';
 
 const SignInPage = ({ history }) =>
   <div>
-    <h1>Sign In</h1>
     <SignInForm history={history} />
-    <PasswordForgetLink />
-    <SignUpLink />
+    <Grid container justify="center" spacing={0}>
+      <Grid item xs={12} md={6}>
+        <PasswordForgetLink />
+        <SignUpLink />
+      </Grid>
+    </Grid>
   </div>
 
 const byPropKey = (propertyName, value) => () => ({
@@ -65,23 +72,51 @@ class SignInForm extends Component {
       email === '';
 
     return (
-      <form onSubmit={this.onSubmit}>
-        <input
-          value={email}
-          onChange={event => this.setState(byPropKey('email', event.target.value))}
-          type="text"
-          placeholder="Email Address"
-        />
-        <input
-          value={password}
-          onChange={event => this.setState(byPropKey('password', event.target.value))}
-          type="password"
-          placeholder="Password"
-        />
-        <button disabled={isInvalid} type="submit">Sign In</button>
-
-        { error && <p>{error.message}</p> }
-      </form>
+      <Grid justify="center" container spacing={0}>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardHeader title="Sign In"></CardHeader>
+            <CardContent>
+              <Grid container spacing={16}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    value={email}
+                    onChange={event => this.setState(byPropKey('email', event.target.value))}
+                    type="text"
+                    label="Email Address" />
+                </Grid>
+              </Grid>
+              <Grid container spacing={16}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    value={password}
+                    onChange={event => this.setState(byPropKey('password', event.target.value))}
+                    type="password"
+                    label="Password" />
+                </Grid>
+              </Grid>
+            </CardContent>
+            <CardActions>
+              <Grid container spacing={16}>
+                <Grid item xs={12}>
+                  <Button
+                    color="primary" 
+                    variant="raised" 
+                    disabled={isInvalid} 
+                    onClick={this.onSubmit}>
+                    Sign In
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  { error && <p>{error.message}</p> }
+                </Grid>
+              </Grid>
+            </CardActions>
+          </Card>
+        </Grid>
+      </Grid>
     );
   }
 }
